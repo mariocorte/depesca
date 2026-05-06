@@ -98,7 +98,10 @@ class _MainMenu extends StatelessWidget {
               iconColor: Colors.white,
               title: const Text(
                 'Herramientas',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               children: [
                 ListTile(
@@ -129,16 +132,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const BackgroundScaffold(
-      title: 'Inicio',
-      body: Center(
-        child: Text(
-          'Selecciona una herramienta en el menú',
-          style: TextStyle(color: Colors.white, fontSize: 20),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
+    return const BackgroundScaffold(title: 'Inicio', body: Center());
   }
 }
 
@@ -211,11 +205,7 @@ class _LunarCalendarScreenState extends State<LunarCalendarScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildForm(),
-            const SizedBox(height: 24),
-            _buildResults(),
-          ],
+          children: [_buildForm(), const SizedBox(height: 24), _buildResults()],
         ),
       ),
     );
