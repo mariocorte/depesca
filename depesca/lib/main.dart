@@ -41,12 +41,13 @@ class BackgroundScaffold extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black.withOpacity(0.35),
+        backgroundColor: Colors.black87,
         foregroundColor: Colors.white,
         title: Text(title),
         leading: showBack ? const BackButton() : null,
       ),
       drawer: isDesktop ? null : const _MainMenu(),
+      drawerScrimColor: Colors.transparent,
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -57,12 +58,7 @@ class BackgroundScaffold extends StatelessWidget {
         child: Row(
           children: [
             if (isDesktop) const SizedBox(width: 280, child: _MainMenu()),
-            Expanded(
-              child: Container(
-                color: Colors.black.withOpacity(0.35),
-                child: body,
-              ),
-            ),
+            Expanded(child: body),
           ],
         ),
       ),
@@ -76,7 +72,7 @@ class _MainMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withOpacity(0.55),
+      color: Colors.black,
       child: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -93,7 +89,7 @@ class _MainMenu extends StatelessWidget {
               ),
             ),
             ExpansionTile(
-              initiallyExpanded: true,
+              initiallyExpanded: false,
               collapsedIconColor: Colors.white,
               iconColor: Colors.white,
               title: const Text(
