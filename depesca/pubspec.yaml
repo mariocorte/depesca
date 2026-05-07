@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^1.2.2
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
@@ -20,3 +21,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/fondo.png
+    - assets/images/m1.png
+    - assets/images/m2.png
+    - assets/images/m3.png
+    - assets/images/m4.png

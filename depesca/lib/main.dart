@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(const MainApp());
@@ -139,12 +140,25 @@ class LunarCalendarScreen extends StatefulWidget {
   State<LunarCalendarScreen> createState() => _LunarCalendarScreenState();
 }
 
+
+class _MoonPhaseViewData {
+  const _MoonPhaseViewData({
+    required this.phase,
+    required this.dateTime,
+    this.imageAsset,
+  });
+
+  final String phase;
+  final DateTime dateTime;
+  final String? imageAsset;
+}
+
 class _LunarCalendarScreenState extends State<LunarCalendarScreen> {
   late int _selectedYear;
   late int _selectedMonth;
   bool _loading = false;
   String? _error;
-  List<dynamic> _results = [];
+  List<_MoonPhaseViewData> _results = [];
 
   @override
   void initState() {
@@ -176,6 +190,20 @@ class _LunarCalendarScreenState extends State<LunarCalendarScreen> {
       final filtered = phaseData.where((item) {
         final map = item as Map<String, dynamic>;
         return map['month'] == _selectedMonth;
+      }).map((item) {
+        final map = item as Map<String, dynamic>;
+        final day = map['day'] as int? ?? 1;
+        final time = map['time'] as String? ?? '00:00';
+        final parts = time.split(':');
+        final hour = int.tryParse(parts.first) ?? 0;
+        final minute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
+        final phase = map['phase'] as String? ?? '';
+
+        return _MoonPhaseViewData(
+          phase: phase,
+          dateTime: DateTime(_selectedYear, _selectedMonth, day, hour, minute),
+          imageAsset: _assetForPhase(phase),
+        );
       }).toList();
 
       setState(() {
@@ -189,6 +217,23 @@ class _LunarCalendarScreenState extends State<LunarCalendarScreen> {
       setState(() {
         _loading = false;
       });
+    }
+  }
+
+
+
+  String? _assetForPhase(String phase) {
+    switch (phase) {
+      case 'New Moon':
+        return 'assets/images/m1.png';
+      case 'First Quarter':
+        return 'assets/images/m2.png';
+      case 'Full Moon':
+        return 'assets/images/m3.png';
+      case 'Last Quarter':
+        return 'assets/images/m4.png';
+      default:
+        return null;
     }
   }
 
@@ -286,20 +331,42 @@ class _LunarCalendarScreenState extends State<LunarCalendarScreen> {
       );
     }
 
-    return Card(
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: _results.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          final item = _results[index] as Map<String, dynamic>;
-          return ListTile(
-            title: Text(item['phase'] as String? ?? '-'),
-            subtitle: Text('Día ${item['day']} - Hora ${item['time']}'),
-          );
-        },
-      ),
+    final dateFormatter = DateFormat('dd/MM/yyyy HH:mm');
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isLarge = constraints.maxWidth >= 700;
+        return Wrap(
+          direction: isLarge ? Axis.horizontal : Axis.vertical,
+          spacing: 12,
+          runSpacing: 12,
+          children: _results.map((item) {
+            return SizedBox(
+              width: isLarge ? 220 : constraints.maxWidth,
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(item.phase, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      Text(dateFormatter.format(item.dateTime)),
+                      if (item.imageAsset != null) ...[
+                        const SizedBox(height: 12),
+                        Center(
+                          child: Image.asset(item.imageAsset!, height: 90, fit: BoxFit.contain),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      },
     );
   }
 }
