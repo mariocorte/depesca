@@ -1,10 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
-void main() {
+import 'database_connection_stub.dart'
+    if (dart.library.io) 'database_connection_io.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
   runApp(const MainApp());
 }
 
@@ -124,8 +130,36 @@ class _MainMenu extends StatelessWidget {
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showDatabaseStatus();
+    });
+  }
+
+  Future<void> _showDatabaseStatus() async {
+    final result = await checkDatabaseConnection();
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(result.message),
+        backgroundColor:
+            result.connected ? Colors.green.shade700 : Colors.red.shade700,
+        duration: const Duration(seconds: 6),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -286,7 +320,7 @@ class _LunarCalendarScreenState extends State<LunarCalendarScreen> {
                 SizedBox(
                   width: 180,
                   child: DropdownButtonFormField<int>(
-                    value: _selectedMonth,
+                    initialValue: _selectedMonth,
                     decoration: const InputDecoration(
                       labelText: 'Mes',
                       border: OutlineInputBorder(),
